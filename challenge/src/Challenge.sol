@@ -76,17 +76,18 @@ contract NFT is ERC721, ReentrancyGuard{
     FlashLoanBank flashLoanBank;
     
     uint256 public tokenId;
-
+    mapping(address=>bool) public addressMinted;
     constructor(FlashLoanBank _flashLoanBank) ERC721("FLASH", "FL") {
         flashLoanBank = _flashLoanBank;
     }
-
     // User with share token can buy valuable FLASH NFT
     // One single purchase is limited to 5 NFTs
     // Each 100 share token an user owns allows he/she to buy 1 NFT
     // Each NFT requires 1 ether
     function award(uint256 amount) public payable nonReentrant{
         require(amount<=5, "Maximum Amount Exceed"); // Maximum purchase amount within single transaction is 5
+        require(!addressMinted[msg.sender], "Already Minted"); // An user can only mint once
+        addressMinted[msg.sender] = true;
         // Ensure an user has enough share token
         uint256 balance = flashLoanBank.getBalanceOf(msg.sender);
         require(amount*1e20 <= balance, "Invalid Amount");
